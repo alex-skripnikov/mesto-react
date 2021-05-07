@@ -19,9 +19,7 @@ function Main(props) {
         .catch((err) => {
             console.log(err); // выведем ошибку в консоль
         });
-    }, []);
 
-    useEffect(() => {
         api.getInitialCards()
         .then(data => {
             setCards(data);

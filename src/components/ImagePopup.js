@@ -1,6 +1,6 @@
 function ImagePopup(props) {
 
-  const openPopupClass = props.card === '1' ? '' : 'overlay_active';
+  const openPopupClass = props.card?.name ? 'overlay_active' : '';
   return (
       <section className={'overlay overlay_type_image ' + openPopupClass}>
         <div className="popup popup_type_picture">
