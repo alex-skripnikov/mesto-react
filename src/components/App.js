@@ -9,7 +9,7 @@ import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import CurrentUserContext from '../contexts/CurrentUserContext';
 import {useEffect, useState} from 'react';
-import api from '../utils/Api'
+import api from '../utils/api'
 
 function App() {
 
