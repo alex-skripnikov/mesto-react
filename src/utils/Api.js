@@ -64,6 +64,22 @@ class Api {
         .then(res => {return this._getResponseData(res)})
     }
 
+    changeLikeCardStatus(idCard, isLiked) {
+        if (isLiked) {
+            return fetch(`${this._baseurl}/cards/likes/${idCard}`, {
+                method: 'PUT',
+                headers: this._headers,
+            })
+            .then(res => {return this._getResponseData(res)})
+         } else {
+            return fetch(`${this._baseurl}/cards/likes/${idCard}`, {
+                method: 'DELETE',
+                headers: this._headers,
+            })
+            .then(res => {return this._getResponseData(res)})
+         }
+    }
+
     //постановка лайка PUT https://mesto.nomoreparties.co/v1/cohortId/cards/likes/cardId
     putLike(idCard) {
         return fetch(`${this._baseurl}/cards/likes/${idCard}`, {

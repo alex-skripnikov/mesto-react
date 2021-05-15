@@ -1,11 +1,30 @@
+import React from 'react';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
+import EditProfilePopup from './EditProfilePopup';
+import EditAvatarPopup from './EditAvatarPopup';
+import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
-import {useState} from 'react';
+import CurrentUserContext from '../contexts/CurrentUserContext';
+import {useEffect, useState} from 'react';
+import api from '../utils/Api'
 
 function App() {
+
+  const [currentUser, setСurrentUser] = useState('');
+
+  useEffect(() => {
+    api.getUserInfo()
+    .then(data => {
+      setСurrentUser(data)
+    })
+    .catch((err) => {
+        console.log(err); // выведем ошибку в консоль
+    });
+
+}, []);
 
   const [selectedCard, setSelectedCard] = useState({});
   function handleCardClick(item) {
@@ -33,31 +52,68 @@ function App() {
     setEditAvatarPopup(false);
     setSelectedCard({});
   }
+  
+  function handleUpdateUser(newName) {
+    api.setUserInfoOnServer(newName.name, newName.about).then(data => {
+      setСurrentUser(data);
+  });
+    closeAllPopups();
+  }
+
+  function handleUpdateAvatar(newAvatar) {
+    api.setAvatar(newAvatar).then(data => {
+      setСurrentUser(data);
+    });
+    closeAllPopups();
+  }
+
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+
+      api.getInitialCards()
+      .then(data => {
+          setCards(data);
+      })
+      .catch((err) => {
+          console.log(err); // выведем ошибку в консоль
+      });
+  }, []);
+
+  function handleCardLike(card) {
+    // Снова проверяем, есть ли уже лайк на этой карточке
+    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    
+    // Отправляем запрос в API и получаем обновлённые данные карточки
+    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+        setCards((cards) => cards.map((c) => c._id === card._id ? newCard : c));
+    });
+} 
+  function handleCardDelete(card) {
+    api.deleteLike(card._id).then(() => {
+        setCards((cards) => cards.filter((c) => c._id !== card._id));
+    });
+  }
+
+  function handleAddPlaceSubmit(newCardData) {
+    api.setNewCardOnServer(newCardData).then((newCard) => {
+      setCards([newCard, ...cards]);
+    });
+    closeAllPopups();
+  }
 
   return (
+  <CurrentUserContext.Provider value={currentUser}>
     <div className="root">
-      <Header />
-      <Main onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={handleCardClick}/>   
       
+      <Header />
+      <Main onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />   
+      
+      <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
 
-      <PopupWithForm className="overlay_type_edit" popupTitle="Редактировать профиль" isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} formName="editProfile" formButtonStaticContent="Сохранить" formButtonProcessContent="Сохранение...">
-          <input type="text" minLength="2" maxLength="40" name="name" className="popup__input popup__input_value_name" required placeholder="Ваше имя" defaultValue="" />
-          <span className="popup__error name-error">Скрытый текст для теста</span>
-          <input type="text" minLength="2" maxLength="200" name="job" className="popup__input popup__input_value_job" required placeholder="Ваша профессия" defaultValue="" />
-          <span className="popup__error job-error">Скрытый текст для теста</span>
-      </PopupWithForm>
+      <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar}/>
 
-      <PopupWithForm className="overlay_type_addPlace" popupTitle="Новое место" isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} formName="addNewPlace" formButtonStaticContent="Создать" formButtonProcessContent="Сохранение...">
-          <input type="text" minLength="2" maxLength="30" name="namePlace" className="popup__input popup__input_value_namePlace" required placeholder="Название" defaultValue="" />
-          <span className="popup__error namePlace-error">Скрытый текст для теста</span>
-          <input type="url" name="imgPlace" className="popup__input popup__input_value_imgPlace" required placeholder="Ссылка на картинку" defaultValue="" />
-          <span className="popup__error imgPlace-error">Скрытый текст для теста</span>
-      </PopupWithForm>
-
-      <PopupWithForm className="overlay_type_setAvatar" popupTitle="Обновить аватар" isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} formName="setAvatar" formButtonStaticContent="Сохранить" formButtonProcessContent="Сохранение...">
-          <input type="url" name="newAvatar" className="popup__input popup__input_value_newAvatar" required placeholder="Ссылка на новый аватар" defaultValue="" />
-          <span className="popup__error newAvatar-error">Скрытый текст для теста</span>
-      </PopupWithForm>
+      <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
 
       <PopupWithForm className="overlay_type_deletePlace" popupTitle="Вы уверены?" formName="deleteForm" formButtonStaticContent="Да" formButtonProcessContent="Сохранение..." />
 
@@ -65,6 +121,8 @@ function App() {
 
       <Footer />
   </div>
+  </CurrentUserContext.Provider>
+
   );
 }
 
