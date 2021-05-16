@@ -12,7 +12,7 @@ function EditAvatarPopup(props) {
     }
 
     return (
-      <PopupWithForm className="overlay_type_setAvatar" popupTitle="Обновить аватар" isOpen={props.isOpen} onClose={props.onClose} formName="setAvatar" formButtonStaticContent="Сохранить" formButtonProcessContent="Сохранение..." onSubmit={handleSubmit}>
+      <PopupWithForm className="overlay_type_setAvatar" popupTitle="Обновить аватар" isOpen={props.isOpen} onClose={props.onClose} formName="setAvatar" formButtonContent="Обновить" onSubmit={handleSubmit}>
         <input type="url" ref={userAvatar} name="newAvatar" className="popup__input popup__input_value_newAvatar" required placeholder="Ссылка на новый аватар" defaultValue="" />
         <span className="popup__error newAvatar-error">Скрытый текст для теста</span>
       </PopupWithForm>

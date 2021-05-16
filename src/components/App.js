@@ -54,17 +54,25 @@ function App() {
   }
   
   function handleUpdateUser(newName) {
-    api.setUserInfoOnServer(newName.name, newName.about).then(data => {
+    api.setUserInfoOnServer(newName.name, newName.about)
+    .then(data => {
       setСurrentUser(data);
-  });
-    closeAllPopups();
+      closeAllPopups();
+    })
+    .catch((err) => { 
+      console.log(err); // выведем ошибку в консоль 
+    });
   }
 
   function handleUpdateAvatar(newAvatar) {
-    api.setAvatar(newAvatar).then(data => {
+    api.setAvatar(newAvatar)
+    .then(data => {
       setСurrentUser(data);
+      closeAllPopups();
+    })
+    .catch((err) => { 
+      console.log(err); // выведем ошибку в консоль 
     });
-    closeAllPopups();
   }
 
   const [cards, setCards] = useState([]);
@@ -85,21 +93,35 @@ function App() {
     const isLiked = card.likes.some(i => i._id === currentUser._id);
     
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+    api.changeLikeCardStatus(card._id, !isLiked)
+    .then((newCard) => {
         setCards((cards) => cards.map((c) => c._id === card._id ? newCard : c));
+    })
+    .catch((err) => { 
+      console.log(err); // выведем ошибку в консоль 
     });
 } 
   function handleCardDelete(card) {
-    api.deleteLike(card._id).then(() => {
+    //console.log(card);
+    //console.log(card._id);
+    api.deletecard(card._id)
+    .then(() => {
         setCards((cards) => cards.filter((c) => c._id !== card._id));
+    })
+    .catch((err) => { 
+      console.log(err); // выведем ошибку в консоль 
     });
   }
 
   function handleAddPlaceSubmit(newCardData) {
-    api.setNewCardOnServer(newCardData).then((newCard) => {
+    api.setNewCardOnServer(newCardData)
+    .then((newCard) => {
       setCards([newCard, ...cards]);
+      closeAllPopups();
+    })
+    .catch((err) => { 
+      console.log(err); // выведем ошибку в консоль 
     });
-    closeAllPopups();
   }
 
   return (
@@ -115,7 +137,7 @@ function App() {
 
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
 
-      <PopupWithForm className="overlay_type_deletePlace" popupTitle="Вы уверены?" formName="deleteForm" formButtonStaticContent="Да" formButtonProcessContent="Сохранение..." />
+      <PopupWithForm className="overlay_type_deletePlace" popupTitle="Вы уверены?" formName="deleteForm" formButtonContent="Да" />
 
       <ImagePopup card={selectedCard} onClose={closeAllPopups}/>
 

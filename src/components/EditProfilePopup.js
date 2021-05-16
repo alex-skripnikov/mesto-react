@@ -6,8 +6,8 @@ import {useState} from 'react';
 
 function EditProfilePopup(props) {
 
-    const [name, setName] = useState([]);
-    const [description, setAbout] = useState([]);
+    const [name, setName] = useState('');
+    const [description, setAbout] = useState('');
 
     const currentUser = React.useContext(CurrentUserContext);
     React.useEffect(() => {
@@ -15,7 +15,7 @@ function EditProfilePopup(props) {
         setName(currentUser.name);
         setAbout(currentUser.about);
     }
-    }, [currentUser]);
+    }, [currentUser, props.isOpen]);
 
     function handleChangeName(e) {
         setName(e.target.value);
@@ -35,7 +35,7 @@ function EditProfilePopup(props) {
     }
 
     return (
-      <PopupWithForm className="overlay_type_edit" popupTitle="Редактировать профиль" isOpen={props.isOpen} onClose={props.onClose} formName="editProfile" formButtonStaticContent="Сохранить" formButtonProcessContent="Сохранение..." onSubmit={handleSubmit}>
+      <PopupWithForm className="overlay_type_edit" popupTitle="Редактировать профиль" isOpen={props.isOpen} onClose={props.onClose} formName="editProfile" formButtonContent="Сохранить" onSubmit={handleSubmit}>
         <input type="text" minLength="2" maxLength="40" name="name" className="popup__input popup__input_value_name" required placeholder="Ваше имя" value={name} onChange={handleChangeName}/>
         <span className="popup__error name-error">Скрытый текст для теста</span>
         <input type="text" minLength="2" maxLength="200" name="job" className="popup__input popup__input_value_job" required placeholder="Ваша профессия" value={description} onChange={handleChangeAbout} />
